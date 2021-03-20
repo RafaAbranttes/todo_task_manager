@@ -58,6 +58,8 @@ export const RightSide = styled.div`
       right: 20px;
     }
 
+    transition: all 0.3s ease;
+
     &:hover {
       opacity: 0.5;
       transform: scale(1.02);
