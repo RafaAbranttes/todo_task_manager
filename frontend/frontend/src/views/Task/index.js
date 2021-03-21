@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import * as S from "./styles";
+import { format } from "date-fns";
+import { Redirect } from "react-router-dom";
 
 import api from "../../services/api";
 
@@ -10,7 +12,7 @@ import TypeIcons from "../../components/utils/typeIcons";
 import iconCalendar from "../../assets/data.png";
 import iconClock from "../../assets/clock.png";
 
-function Task() {
+function Task({ match }) {
   const [lateCount, setLateCount] = useState();
   const [type, setType] = useState();
   const [id, setId] = useState();
@@ -19,7 +21,8 @@ function Task() {
   const [description, setDescription] = useState();
   const [date, setDate] = useState();
   const [hour, setHour] = useState();
-  const [macaddress, setMacaddress] = useState('11:11:11:11:11:11');
+  const [macaddress, setMacaddress] = useState("11:11:11:11:11:11");
+  const [redirect, setRedirect] = useState(false);
 
   async function lateVerify() {
     await api.get(`/task/filter/late/11:11:11:11:11:11`).then((response) => {
@@ -27,24 +30,73 @@ function Task() {
     });
   }
 
+  async function Remove() {
+    const res = window.confirm("Deseja remover a tarefa?");
+
+    if (res) {
+      await api.delete(`/task/${match.params.id}`)
+      .then(() => setRedirect(true));
+    }
+  }
+
   useEffect(() => {
     lateVerify();
+    LoadTaskDetail();
   }, []);
 
-  async function Save(){
-    await api.post('/task', {
-      macaddress,
-      type,
-      title,
-      description,
-      when: `${date}T${hour}:00.000`
-    }).then( 
-      () => alert("Tarefa cadastrada com sucesso")
-    )
+  async function Save() {
+    //validação
+
+    if (!title) {
+      return alert("Informar título!");
+    } else if (!description) {
+      return alert("Informar a descrição!");
+    } else if (!type) {
+      return alert("Informar o tipo da tarefa!");
+    } else if (!date) {
+      return alert("Informa a data!");
+    } else if (!hour) {
+      return alert("Informar a hora!");
+    }
+
+    if (match.params.id) {
+      await api
+        .put(`task/${match.params.id}`, {
+          macaddress,
+          done,
+          type,
+          title,
+          description,
+          when: `${date}T${hour}:00.000`,
+        })
+        .then(() => setRedirect(true));
+    } else {
+      await api
+        .post("/task", {
+          macaddress,
+          type,
+          title,
+          description,
+          when: `${date}T${hour}:00.000`,
+        })
+        .then(() => setRedirect(true));
+    }
+  }
+
+  async function LoadTaskDetail() {
+    await api.get(`task/${match.params.id}`).then((response) => {
+      setType(response.data.type);
+      setTitle(response.data.title);
+      setDone(response.data.done);
+      setDescription(response.data.description);
+      setDate(format(new Date(response.data.when), "yyyy-MM-dd"));
+      setHour(format(new Date(response.data.when), "hh:mm"));
+    });
   }
 
   return (
     <S.Container>
+      {redirect && <Redirect to="/"></Redirect>}
       <Header lateCount={lateCount} clickNotification={Notification}></Header>
       <S.Form>
         <S.TypeIcons>
@@ -106,17 +158,24 @@ function Task() {
 
         <S.Options>
           <div>
-            <input type="checkbox"
-              checked = {done}
-              onChange = {(e) => setDone(!done)}
+            <input
+              type="checkbox"
+              checked={done}
+              onChange={(e) => setDone(!done)}
             ></input>
             <span>Concluído</span>
           </div>
-          <button type="button">Excluir</button>
+          {match.params.id && (
+            <button type="button" onClick={Remove}>
+              Excluir
+            </button>
+          )}
         </S.Options>
 
         <S.Save>
-          <button type="button"  onClick = {Save} >Salvar</button>
+          <button type="button" onClick={Save}>
+            Salvar
+          </button>
         </S.Save>
       </S.Form>
       <Footer></Footer>

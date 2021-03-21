@@ -4,7 +4,7 @@ import * as S from './styles'
 import typeIcons from '../utils/typeIcons'
 
 
-function TaskCard({type, title, when}) {
+function TaskCard({type, title, when, done}) {
 
   const date = useMemo(() => {
     return format(new Date(when), 'dd/MM/yyyy')
@@ -15,7 +15,7 @@ function TaskCard({type, title, when}) {
   })
 
   return (
-    <S.Container>
+    <S.Container done = {done}>
         <S.TopCard>
           <img src = {typeIcons[type]} alt = "Ícone da tarefa"></img>
           <h3>{title}</h3>

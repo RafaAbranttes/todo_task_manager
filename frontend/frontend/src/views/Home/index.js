@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import * as S from "./styles";
+import { Link } from "react-router-dom";
 
 import api from "../../services/api";
 
@@ -33,13 +34,13 @@ function Home() {
     lateVerify();
   }, [filterActived]);
 
-  function Notification(){
-    setFilterActived('late')
+  function Notification() {
+    setFilterActived("late");
   }
 
   return (
     <S.Container>
-      <Header lateCount = {lateCount} clickNotification = {Notification}></Header>
+      <Header lateCount={lateCount} clickNotification={Notification}></Header>
       <S.FilterArea>
         <a type="a" onClick={() => setFilterActived("all")}>
           <FilterCard
@@ -74,16 +75,19 @@ function Home() {
       </S.FilterArea>
 
       <S.Title>
-        <h3>{filterActived === 'late' ? 'tarefas atrasadas' : 'tarefas'}</h3>
+        <h3>{filterActived === "late" ? "tarefas atrasadas" : "tarefas"}</h3>
       </S.Title>
 
       <S.Content>
         {tasks.map((task) => (
-          <TaskCard
-            type={task.type}
-            title={task.title}
-            when={task.when}
-          ></TaskCard>
+          <Link to={`/task/${task._id}`}>
+            <TaskCard
+              type={task.type}
+              title={task.title}
+              when={task.when}
+              done={task.done}
+            ></TaskCard>
+          </Link>
         ))}
       </S.Content>
 
