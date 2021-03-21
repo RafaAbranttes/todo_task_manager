@@ -1,5 +1,6 @@
 import React from 'react'
 import * as S from './styles'
+import {Link} from 'react-router-dom'
 
 import logo from '../../assets/logo.png'
 import bell from '../../assets/bell.png'
@@ -12,9 +13,9 @@ function Header({lateCount, clickNotification}) {
       </S.LeftSide>
 
       <S.RightSide>
-        <a href="#">início</a>
+        <Link to = "/">início</Link>
         <span className = "dividir"></span>
-        <a href="#">nova tarefa</a>
+        <Link to = "/task">nova tarefa</Link>
         <span className = "dividir"></span>
         <a href="#">sincronizar celular</a>
         <span className = "dividir"></span>
